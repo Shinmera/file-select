@@ -29,16 +29,15 @@
     (cffi:use-foreign-library gtk)))
 
 (defmethod finalize ((backend gtk))
-  (slot-makunbound backend 'application)
-  (slot-makunbound backend 'closuer))
+  (slot-makunbound backend 'closure))
 
-(defmethod new-with ((backend gtk) &key (title "New File") default filter multiple &allow-other-keys)
+(defmethod new-with ((backend gtk) &key title default filter multiple &allow-other-keys)
   (show* backend title (if (eq filter :directory)
                   :create-folder
                   :save)
         default filter multiple))
 
-(defmethod existing-with ((backend gtk) &key (title "Select File") default filter multiple &allow-other-keys)
+(defmethod existing-with ((backend gtk) &key title default filter multiple &allow-other-keys)
   (show* backend title (if (eq filter :directory)
                   :select-folder
                   :open)

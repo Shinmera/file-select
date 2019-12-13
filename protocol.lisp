@@ -32,11 +32,11 @@
 (defmethod existing-with ((backend symbol) &rest args)
   (apply #'existing-with (find-class backend) args))
 
-(defmethod new-with ((backend class) &rest args)
-  (apply #'new-with (get-backend backend) args))
+(defmethod new-with ((backend class) &rest args &key (title "New File"))
+  (apply #'new-with (get-backend backend) :title title args))
 
-(defmethod existing-with ((backend class) &rest args)
-  (apply #'existing-with (get-backend backend) args))
+(defmethod existing-with ((backend class) &rest args &key (title "Select File"))
+  (apply #'existing-with (get-backend backend) :title title args))
 
 (defmethod finalize :after ((backend backend))
   (remhash (class-of backend) *backend-cache*))
