@@ -40,10 +40,10 @@
   (co-uninitialize))
 
 (defmethod new-with ((backend win32) &key title default filter multiple &allow-other-keys)
-  (open* CLSID-FILE-SAVE-DIALOG title default filter multiple))
+  (open* CLSID-FILE-SAVE-DIALOG IID-IFILE-SAVE-DIALOG title default filter multiple))
 
 (defmethod existing-with ((backend win32) &key title default filter multiple &allow-other-keys)
-  (open* CLSID-FILE-OPEN-DIALOG title default filter multiple))
+  (open* CLSID-FILE-OPEN-DIALOG IID-IFILE-OPEN-DIALOG title default filter multiple))
 
 (defmacro unwind-protect* (cleanup &body body)
   `(unwind-protect (progn ,@body) ,cleanup))
@@ -374,12 +374,12 @@
 
 ;; FIXME: string conversion using windows routines.
 
-(defun open* (type title default filter multiple)
+(defun open* (clsid iid title default filter multiple)
   (let ((strings ()) defitem)
     (flet ((wstring (string)
              (car (push (string->wstring string) strings))))
       (unwind-protect* (mapc #'cffi:foreign-free strings)
-        (with-com-object dialog (co-create-instance type (cffi:null-pointer) CLSCTX-ALL IID-IFILE-DIALOG dialog)
+        (with-com-object dialog (co-create-instance clsid (cffi:null-pointer) CLSCTX-ALL iid dialog)
           (let ((options (with-deref (options 'dword) (file-dialog-get-options dialog options))))
             (check-return
                 (file-dialog-set-options dialog (logior options
