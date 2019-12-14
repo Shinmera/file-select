@@ -106,6 +106,12 @@
 
 (cffi:defcvar (nsapp "NSApp") :pointer)
 
+(defun ensure-url-path (url filter)
+  (let ((string (objc-call url "fileSystemRepresentation" :string)))
+    (when (eq filter :directory)
+      (setf string (format NIL "~a/" string)))
+    (parse-native-namestring string)))
+
 (defun open* (class constructor &key title default filter multiple message backend)
   (declare (ignore backend))
   (set-uncaught-exception-handler (cffi:callback exception-handler))
@@ -113,11 +119,11 @@
     (let ((strings ()))
       (unwind-protect
            (flet ((nsstring (string)
-                    (car (push (objc-call "NSString" "initWithUTF8String:" :string string) strings))))
+                    (car (push (objc-call "NSString" "stringWithUTF8String:" :string string) strings))))
              (set-uncaught-exception-handler (cffi:callback exception-handler))
              (let ((app (objc-call "NSApplication" "sharedApplication")))
                (objc-call app "setActivationPolicy:" NSApplicationActivationPolicy :accessory :bool)
-               (with-object (window (objc-call class constructor))
+               (with-object (window (objc-call (get-class class) constructor))
                  (objc-call window "setTitle:" :pointer (nsstring title))
                  (when message
                    (objc-call window "setMessage:" :pointer (nsstring message)))
@@ -137,13 +143,16 @@
                            do (setf (cffi:mem-aref list :pointer i) (nsstring type)))
                      (with-object (array (objc-call "NSArray" "arrayWithObjects:count:" :pointer list :uint (length filter)))
                        (objc-call window "setAllowedFileTypes:" :pointer array))))
-                 (ecase (objc-call window "runModal" NSModalResponse)
+                 (ecase (unwind-protect (objc-call window "runModal" NSModalResponse)
+                          (objc-call window "setIsVisible" :bool NIL))
                    (:cancel (values NIL NIL))
                    (:ok
-                    (if multiple
-                        (let ((urls (objc-call window "URLs")))
-                          (loop for i from 0 below (objc-call urls "count" :uint)
-                                for url = (objc-call urls "objectAtIndex:" :uint i)
-                                collect (objc-call url "fileSystemRepresentation" :string)))
-                        (objc-call (objc-call window "URL") "fileSystemRepresentation" :string)))))))
+                    (values
+                     (if multiple
+                         (let ((urls (objc-call window "URLs")))
+                           (loop for i from 0 below (objc-call urls "count" :uint)
+                                 for url = (objc-call urls "objectAtIndex:" :uint i)
+                                 collect (ensure-url-path url filter)))
+                         (ensure-url-path (objc-call window "URL") filter))
+                     T))))))
         (mapc #'free-instance strings)))))
