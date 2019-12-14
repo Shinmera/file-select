@@ -369,7 +369,7 @@
 (defmacro with-com-object (var init &body body)
   `(let ((,var (with-deref (,var :pointer) ,init)))
      (unwind-protect
-          ,@body
+          (progn ,@body)
        (com-release ,var))))
 
 ;; FIXME: string conversion using windows routines.
@@ -415,7 +415,7 @@
                (values
                 (cond (multiple
                        (with-com-object result (file-open-dialog-get-results dialog result)
-                         (loop for i from 0 below (with-deref (num :uint) (shell-item-array-get-count result num))
+                         (loop for i from 0 below (with-deref (num 'dword) (shell-item-array-get-count result num))
                                collect (with-com-object item (shell-item-array-get-item-at result i item)
                                          (shell-item-path item)))))
                       (T
