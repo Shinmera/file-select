@@ -106,11 +106,25 @@
 
 (cffi:defcvar (nsapp "NSApp") :pointer)
 
+(cffi:defcenum (NSEventMask :uint64)
+  (:any #.(1- (ash 1 64))))
+
+(cffi:defcvar (nsdefaultrunloopmode "NSDefaultRunLoopMode") :pointer)
+
 (defun ensure-url-path (url filter)
   (let ((string (objc-call url "fileSystemRepresentation" :string)))
     (when (eq filter :directory)
       (setf string (format NIL "~a/" string)))
     (parse-native-namestring string)))
+
+(defun process-event (app)
+  (let ((event (objc-call app "nextEventMatchingMask:untilDate:inMode:dequeue:"
+                          NSEventMask :any
+                          :pointer (objc-call "NSDate" "distantPast")
+                          :pointer nsdefaultrunloopmode
+                          :bool T)))
+    (unless (cffi:null-pointer-p event)
+      (objc-call app "sendEvent:" :pointer event))))
 
 (defun open* (class constructor &key title default filter multiple message backend)
   (declare (ignore backend))
@@ -144,7 +158,7 @@
                      (with-object (array (objc-call "NSArray" "arrayWithObjects:count:" :pointer list :uint (length filter)))
                        (objc-call window "setAllowedFileTypes:" :pointer array))))
                  (ecase (unwind-protect (objc-call window "runModal" NSModalResponse)
-                          (objc-call window "setIsVisible:" :bool NIL))
+                          (loop while (process-event app)))
                    (:cancel (values NIL NIL))
                    (:ok
                     (values
