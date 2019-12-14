@@ -12,11 +12,15 @@
 (cffi:define-foreign-library appkit
   (t (:framework "AppKit")))
 
+(cffi:define-foreign-library foundation
+  (t (:framework "Foundation")))
+
 (defclass macos (backend)
   ())
 
 (defmethod initialize-instance :after ((backend macos) &key)
   (unless (cffi:foreign-library-loaded-p 'cocoa)
+    (cffi:use-foreign-library foundation)
     (cffi:use-foreign-library cocoa)
     (cffi:use-foreign-library appkit)))
 
