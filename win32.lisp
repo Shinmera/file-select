@@ -372,8 +372,6 @@
           (progn ,@body)
        (com-release ,var))))
 
-;; FIXME: string conversion using windows routines.
-
 (defun open* (clsid iid title default filter multiple)
   (let ((strings ()) defitem)
     (flet ((wstring (string)
