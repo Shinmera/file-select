@@ -359,67 +359,65 @@
     (shell-item-get-display-name item :filesys-path pointer)
     (wstring->string (cffi:mem-ref pointer :pointer))))
 
+(defmacro with-deref ((var type) &body init)
+  `(cffi:with-foreign-object (,var ,type)
+     (check-return (progn ,@init))
+     (cffi:mem-ref ,var ,type)))
+
+(defmacro with-com-object (var init &body body)
+  `(let ((,var (with-deref (,var :pointer) ,init)))
+     (unwind-protect
+          ,@body
+       (com-release ,var))))
+
 ;; FIXME: string conversion using windows routines.
 
 (defun open* (type title default filter multiple)
-  (cffi:with-foreign-objects ((dialog :pointer)
-                              (options 'dword)
-                              (defitem :pointer)
-                              (result :pointer)
-                              (item :pointer))
-    (let ((strings ()))
-      (flet ((wstring (string)
-               (car (push (string->wstring string) strings))))
-        (unwind-protect* (mapc #'cffi:foreign-free strings)
-          (check-return
-              (co-create-instance type (cffi:null-pointer) CLSCTX-ALL IID-IFILE-DIALOG dialog))
-          (unwind-protect* (com-release dialog)
+  (let ((strings ()) defitem)
+    (flet ((wstring (string)
+             (car (push (string->wstring string) strings))))
+      (unwind-protect* (mapc #'cffi:foreign-free strings)
+        (with-com-object dialog (co-create-instance type (cffi:null-pointer) CLSCTX-ALL IID-IFILE-DIALOG dialog)
+          (let ((options (with-deref (options 'dword) (file-dialog-get-options dialog options))))
             (check-return
-                (file-dialog-get-options dialog options))
-            (check-return
-                (file-dialog-set-options dialog (logior (cffi:mem-ref options 'dword)
+                (file-dialog-set-options dialog (logior options
                                                         (cffi:foreign-enum-value 'fileopendialogoptions :force-file-system)
                                                         (if multiple
                                                             (cffi:foreign-enum-value 'fileopendialogoptions :allow-multi-select)
                                                             0)
                                                         (if (eq :directory filter)
                                                             (cffi:foreign-enum-value 'fileopendialogoptions :pick-folders)
-                                                            0))))
+                                                            0)))))
+          (check-return
+              (file-dialog-set-title dialog (wstring title)))
+          (etypecase filter
+            ((eql :directory) (setf filter ()))
+            (string
+             (setf filter `((,filter ,filter))))
+            (list))
+          (when filter
+            (let ((structure (cffi:foreign-alloc :pointer :count (* 2 (length filter)))))
+              (push structure strings)
+              (loop for i from 0 by 2
+                    for (name type) in filter
+                    do (setf (cffi:mem-aref structure :pointer (+ 0 i)) (wstring name))
+                       (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring type)))
+              (file-dialog-set-file-types dialog (length filter) structure)))
+          (when default
+            (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring default) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
             (check-return
-                (file-dialog-set-title dialog (wstring title)))
-            (etypecase filter
-              ((eql :directory) (setf filter ()))
-              (string
-               (setf filter `((,filter ,filter))))
-              (list))
-            (when filter
-              (let ((structure (cffi:foreign-alloc :pointer :count (* 2 (length filter)))))
-                (push structure strings)
-                (loop for i from 0 by 2
-                      for (name type) in filter
-                      do (setf (cffi:mem-aref structure :pointer (+ 0 i)) (wstring name))
-                         (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring type)))
-                (file-dialog-set-file-types dialog (length filter) structure)))
-            (when default
-              (check-return
-                  (create-item-from-parsing-name (wstring default) (cffi:null-pointer) IID-ISHELL-ITEM defitem))
-              (check-return
-                  (file-dialog-set-default-folder dialog defitem)))
-            (unwind-protect* (when default (com-release defitem)))
+                (file-dialog-set-default-folder dialog defitem)))
+          (unwind-protect* (when defitem (com-release defitem))
             (case (file-dialog-show dialog (cffi:null-pointer))
               (:ok
                (values
                 (cond (multiple
-                       (check-return
-                           (file-open-dialog-get-results dialog result))
-                       (unwind-protect* (com-release result)
-                         (loop for i from 0 below (shell-item-array-get-count result result)
-                               do (check-return (shell-item-array-get-item-at result i item))
-                               collect (shell-item-path item))))
+                       (with-com-object result (file-open-dialog-get-results dialog result)
+                         (loop for i from 0 below (with-deref (num :uint) (shell-item-array-get-count result num))
+                               collect (with-com-object item (shell-item-array-get-item-at result i item)
+                                         (shell-item-path item)))))
                       (T
-                       (check-return
-                           (file-dialog-get-result dialog result))
-                       (unwind-protect* (com-release result)
+                       (with-com-object result (file-dialog-get-result dialog result)
                          (shell-item-path result))))
                 T))
               (:cancelled
