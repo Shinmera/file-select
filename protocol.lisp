@@ -9,6 +9,9 @@
 (defvar *backend-cache* (make-hash-table :test 'eq))
 (defvar *default-backend*)
 
+(define-condition file-select-error (error)
+  ())
+
 (defun existing (&rest args &key title default filter multiple (backend *default-backend*))
   (apply #'existing-with backend args))
 
