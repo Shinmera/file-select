@@ -25,3 +25,11 @@
 (defpackage #:org.shirakumo.file-select.win32
   (:use #:cl #:org.shirakumo.file-select)
   (:export #:win32))
+
+(defpackage #:org.shirakumo.file-select.zenity
+  (:use #:cl #:org.shirakumo.file-select)
+  (:export #:zenity))
+
+(defpackage #:org.shirakumo.file-select.ios
+  (:use #:cl #:org.shirakumo.file-select)
+  (:export #:ios))

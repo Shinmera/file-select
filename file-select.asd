@@ -17,6 +17,7 @@
   :components ((:file "package")
                (:file "protocol")
                (:file "gtk")
+               (:file "zenity")
                (:file "kde")
                (:file "ios")
                (:file "win32")
