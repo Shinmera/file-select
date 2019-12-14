@@ -26,11 +26,11 @@
 
 (defmethod finalize ((backend macos)))
 
-(defmethod new-with ((backend macos) &key title default filter multiple)
-  )
+(defmethod new-with ((backend macos) &rest args)
+  (apply #'open* "NSSavePanel" "savePanel" args))
 
-(defmethod existing-with ((backend macos) &key title default filter multiple)
-  )
+(defmethod existing-with ((backend macos) &rest args)
+  (apply #'open* "NSOpenPanel" "openPanel" args))
 
 (cffi:defctype size_t #+x86-64 :uint64 #+x86 :uint32 #-(or x86-64 x86) :long)
 (cffi:defctype id :pointer)
@@ -43,9 +43,6 @@
 (cffi:defcfun (register-name "sel_registerName") sel
   (name :string))
 
-(cffi:defcfun (ns-make-rect "NSMakeRect") :pointer
-  (x :int) (y :int) (w :int) (h :int))
-
 (cffi:defcfun (set-uncaught-exception-handler "NSSetUncaughtExceptionHandler") :void
   (handler :pointer))
 
@@ -55,8 +52,10 @@
 (defmacro objc-call (self method &rest args)
   (when (stringp self)
     (setf self `(get-class ,self)))
+  (when (evenp (length args))
+    (setf args (append args '(id))))
   (let* ((struct (gensym "STRUCT"))
-         (retval (or (car (last args)) :void))
+         (retval (car (last args)))
          (base-args (list* 'id self
                            'sel `(register-name ,method)
                            (loop for (type name) on (butlast args) by #'cddr
@@ -70,22 +69,11 @@
           (T
            `(cffi:foreign-funcall "objc_msgSend" ,@base-args ,retval)))))
 
-(defmacro define-objc-method ((name method) retval &body args)
-  (let ((self (gensym "SELF")))
-    `(defun ,name (,self ,@(mapcar #'first args))
-       (objc-call ,self ,method ,@(loop for (name type) in args collect type collect name) ,retval))))
-
-(defun allocate-instance (name)
-  (objc-call (get-class name) "alloc" id))
-
-(defun create-instance (name)
-  (objc-call (allocate-instance name) "init" id))
-
 (defun free-instance (id)
-  (objc-call id "free" :void))
+  (objc-call id "dealloc" :void))
 
-(defmacro with-instance ((var class &rest init) &body body)
-  `(let ((,var (objc-call (allocate-instance ,class) ,@(or init (list "init")) id)))
+(defmacro with-object ((var init) &body body)
+  `(let ((,var ,init))
      (unwind-protect
           (progn ,@body)
        (free-instance ,var))))
@@ -118,17 +106,44 @@
 
 (cffi:defcvar (nsapp "NSApp") :pointer)
 
-(defun test ()
+(defun open* (class constructor &key title default filter multiple message backend)
+  (declare (ignore backend))
   (set-uncaught-exception-handler (cffi:callback exception-handler))
-  (let ((app (objc-call "NSApplication" "sharedApplication" :pointer)))
-    (print (list app nsapp))
-    (print :a)
-    (objc-call app "setActivationPolicy" NSApplicationActivationPolicy :regular :bool)
-    (print :b)
-    (with-instance (window "NSWindow" "initWithContentRect"
-                           :pointer (ns-make-rect 0 0 320 240)
-                           NSWindowStyleMask :titled
-                           NSBackingStoreType :buffered
-                           :bool NIL)
-      (objc-call app "runModalForWindow" :pointer window NSModalResponse))
-    (print :c)))
+  (float-features:with-float-traps-masked T
+    (let ((strings ()))
+      (unwind-protect
+           (flet ((nsstring (string)
+                    (car (push (objc-call "NSString" "initWithUTF8String:" :string string) strings))))
+             (set-uncaught-exception-handler (cffi:callback exception-handler))
+             (let ((app (objc-call "NSApplication" "sharedApplication")))
+               (objc-call app "setActivationPolicy:" NSApplicationActivationPolicy :accessory :bool)
+               (with-object (window (objc-call class constructor))
+                 (objc-call window "setTitle:" :pointer (nsstring title))
+                 (when message
+                   (objc-call window "setMessage:" :pointer (nsstring message)))
+                 (objc-call window "setAllowsMultipleSelection:" :bool multiple)
+                 (objc-call window "setCanChooseDirectories:" :bool (eq filter :directory))
+                 (objc-call window "setCanChooseFiles:" :bool (not (eq filter :directory)))
+                 (when default
+                   (objc-call window "setNameFieldStringValue:" :pointer (nsstring (file-namestring default)))
+                   (with-object (url (objc-call "NSURL" "URLWithString:" :pointer (nsstring (native-namestring default))))
+                     (objc-call window "setDirectoryURL:" :pointer url)))
+                 (when (stringp filter)
+                   (setf filter `(("" ,filter))))
+                 (when (consp filter)
+                   (cffi:with-foreign-object (list :pointer (length filter))
+                     (loop for i from 0
+                           for (name type) in filter
+                           do (setf (cffi:mem-aref list :pointer i) (nsstring type)))
+                     (with-object (array (objc-call "NSArray" "arrayWithObjects:count:" :pointer list :uint (length filter)))
+                       (objc-call window "setAllowedFileTypes:" :pointer array))))
+                 (ecase (objc-call window "runModal" NSModalResponse)
+                   (:cancel (values NIL NIL))
+                   (:ok
+                    (if multiple
+                        (let ((urls (objc-call window "URLs")))
+                          (loop for i from 0 below (objc-call urls "count" :uint)
+                                for url = (objc-call urls "objectAtIndex:" :uint i)
+                                collect (objc-call url "fileSystemRepresentation" :string)))
+                        (objc-call (objc-call window "URL") "fileSystemRepresentation" :string)))))))
+        (mapc #'free-instance strings)))))
