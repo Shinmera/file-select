@@ -406,9 +406,11 @@
                        (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring type)))
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
-            (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring default) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
-            (check-return
-                (file-dialog-set-default-folder dialog defitem)))
+            (let ((filename (file-namestring default))
+                  (directory (directory-namestring default)))
+              (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
+              (check-return (file-dialog-set-folder dialog defitem))
+              (check-return (file-dialog-set-file-name dialog (wstring filename)))))
           (unwind-protect* (when defitem (com-release defitem))
             (case (check-return (file-dialog-show dialog (cffi:null-pointer)) :ok :cancelled)
               (:ok
