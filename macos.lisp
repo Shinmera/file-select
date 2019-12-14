@@ -46,6 +46,12 @@
 (cffi:defcfun (ns-make-rect "NSMakeRect") :pointer
   (x :int) (y :int) (w :int) (h :int))
 
+(cffi:defcfun (set-uncaught-exception-handler "NSSetUncaughtExceptionHandler") :void
+  (handler :pointer))
+
+(cffi:defcallback exception-handler :void ((object id) (pointer :pointer))
+  (error "Fuck!"))
+
 (defmacro objc-call (self method &rest args)
   (when (stringp self)
     (setf self `(get-class ,self)))
@@ -110,8 +116,12 @@
 (cffi:defcenum NSBackingStoreType
   (:buffered 2))
 
+(cffi:defcvar (nsapp "NSApp") :pointer)
+
 (defun test ()
+  (set-uncaught-exception-handler (cffi:callback exception-handler))
   (let ((app (objc-call "NSApplication" "sharedApplication" :pointer)))
+    (print (list app nsapp))
     (print :a)
     (objc-call app "setActivationPolicy" NSApplicationActivationPolicy :regular :bool)
     (print :b)
