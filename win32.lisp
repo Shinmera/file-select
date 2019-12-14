@@ -21,11 +21,12 @@
   (:report (lambda (c s) (format s "File select operation failed!~%The call to~%  ~a~%returned with unexpected result code ~a."
                                  (function-name c) (code c)))))
 
-(defmacro check-return (value-form &optional (expected :ok))
+(defmacro check-return (value-form &rest expected)
   (let ((value (gensym "VALUE")))
     `(let ((,value ,value-form))
-       (unless (eq ,expected ,value)
-         (error 'win32-error :code ,value :function-name ',(first value-form))))))
+       (if (find ,value ',(or expected '(:ok)))
+           ,value
+           (error 'win32-error :code ,value :function-name ',(first value-form))))))
 
 (defclass win32 (backend)
   ())
@@ -56,6 +57,7 @@
 (cffi:defcenum hresult
   (:ok #x00000000)
   (:abort #x80004004)
+  (:cancelled #x800704C7)
   (:access-denied #x80070005)
   (:fail #x80004005)
   (:handle #x80070006)
@@ -408,7 +410,7 @@
             (check-return
                 (file-dialog-set-default-folder dialog defitem)))
           (unwind-protect* (when defitem (com-release defitem))
-            (case (file-dialog-show dialog (cffi:null-pointer))
+            (case (check-return (file-dialog-show dialog (cffi:null-pointer)) :ok :cancelled)
               (:ok
                (values
                 (cond (multiple
@@ -421,5 +423,4 @@
                          (shell-item-path result))))
                 T))
               (:cancelled
-               (values NIL NIL))
-              (T (error "...")))))))))
+               (values NIL NIL)))))))))
