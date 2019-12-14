@@ -144,7 +144,7 @@
                      (with-object (array (objc-call "NSArray" "arrayWithObjects:count:" :pointer list :uint (length filter)))
                        (objc-call window "setAllowedFileTypes:" :pointer array))))
                  (ecase (unwind-protect (objc-call window "runModal" NSModalResponse)
-                          (objc-call window "setIsVisible" :bool NIL))
+                          (objc-call window "setIsVisible:" :bool NIL))
                    (:cancel (values NIL NIL))
                    (:ok
                     (values
