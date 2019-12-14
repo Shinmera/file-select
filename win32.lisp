@@ -363,7 +363,7 @@
 
 (defmacro with-deref ((var type) &body init)
   `(cffi:with-foreign-object (,var ,type)
-     (check-return (progn ,@init))
+     (check-return ,@init)
      (cffi:mem-ref ,var ,type)))
 
 (defmacro with-com-object (var init &body body)
@@ -407,7 +407,7 @@
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
             (let ((filename (file-namestring default))
-                  (directory (directory-namestring default)))
+                  (directory (namestring (make-pathname :name NIL :type NIL :defaults default))))
               (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
               (check-return (file-dialog-set-folder dialog defitem))
               (check-return (file-dialog-set-file-name dialog (wstring filename)))))
