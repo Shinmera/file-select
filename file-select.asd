@@ -18,11 +18,12 @@
                (:file "protocol")
                (:file "gtk")
                (:file "zenity")
-               (:file "macos")
+               (:file "macos" :if-feature :darwin)
                (:file "win32")
                (:file "defaults")
                (:file "documentation"))
   :depends-on (:cffi
                :float-features
                :trivial-features
+               (:feature :darwin :trivial-main-thread)
                :documentation-utils))
