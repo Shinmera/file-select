@@ -92,11 +92,11 @@
                    (unwind-protect
                         (loop until (cffi:null-pointer-p head)
                               for file = (g-slist-data head)
-                              collect (g-get-path file)
+                              collect (parse-native-namestring (g-get-path file))
                               do (g-unref file)
                                  (setf head (g-slist-next head)))
                      (g-slist-free files)))
-                 (get-filename dialog))
+                 (parse-native-namestring (get-filename dialog)))
              T))
            (T
             (values NIL NIL)))

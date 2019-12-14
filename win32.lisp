@@ -359,7 +359,7 @@
 (defun shell-item-path (item)
   (cffi:with-foreign-object (pointer :pointer)
     (shell-item-get-display-name item :filesys-path pointer)
-    (wstring->string (cffi:mem-ref pointer :pointer))))
+    (parse-native-namestring (wstring->string (cffi:mem-ref pointer :pointer)))))
 
 (defmacro with-deref ((var type) &body init)
   `(cffi:with-foreign-object (,var ,type)
@@ -407,7 +407,7 @@
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
             (let ((filename (file-namestring default))
-                  (directory (namestring (make-pathname :name NIL :type NIL :defaults default))))
+                  (directory (native-namestring (make-pathname :name NIL :type NIL :defaults default))))
               (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
               (check-return (file-dialog-set-folder dialog defitem))
               (check-return (file-dialog-set-file-name dialog (wstring filename)))))

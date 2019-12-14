@@ -14,7 +14,9 @@
    #:existing
    #:backend
    #:new-with
-   #:existing-with))
+   #:existing-with
+   #:native-namestring
+   #:parse-native-namestring))
 
 (defpackage #:org.shirakumo.file-select.gtk
   (:use #:cl #:org.shirakumo.file-select)
