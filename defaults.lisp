@@ -33,7 +33,7 @@
   (cond ((find :win32 *features*)
          'org.shirakumo.file-select.win32:win32)
         ((find :darwin *features*)
-         'org.shirakumo.file-select.ios:ios)
+         'org.shirakumo.file-select.macos:macos)
         ((find-in-path "zenity")
          'org.shirakumo.file-select.zenity:zenity)
         ((ignore-errors (cffi:load-foreign-library 'org.shirakumo.file-select.gtk:gtk))

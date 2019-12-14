@@ -33,25 +33,14 @@
 (cffi:defctype oclass :pointer)
 (cffi:defctype sel :pointer)
 
-(cffi:defcfun (class-create-instance "class_createInstance") id
-  (class oclass)
-  (bytes size_t))
-
-(cffi:defcfun (class-construct-instance "class_constructInstance") id
-  (class oclass)
-  (buffer :pointer))
-
-(cffi:defcfun (class-destruct-instance "class_destructInstance") :pointer
-  (obj id))
-
-(cffi:defcfun (object-dispose "object_dispose") id
-  (obj id))
-
 (cffi:defcfun (get-class "objc_getClass") oclass
   (name :string))
 
 (cffi:defcfun (register-name "sel_registerName") sel
   (name :string))
+
+(cffi:defcfun (ns-make-rect "NSMakeRect") :pointer
+  (x :int) (y :int) (w :int) (h :int))
 
 (defmacro objc-call (self method &rest args)
   (when (stringp self)
@@ -76,14 +65,17 @@
     `(defun ,name (,self ,@(mapcar #'first args))
        (objc-call ,self ,method ,@(loop for (name type) in args collect type collect name) ,retval))))
 
+(defun allocate-instance (name)
+  (objc-call (get-class name) "alloc" id))
+
 (defun create-instance (name)
-  (objc-call (objc-call (get-class name) "alloc" id) "init" id))
+  (objc-call (allocate-instance name) "init" id))
 
 (defun free-instance (id)
   (objc-call id "free" :void))
 
-(defmacro with-instance ((var class) &body body)
-  `(let ((,var (create-instance ,class)))
+(defmacro with-instance ((var class &rest init) &body body)
+  `(let ((,var (objc-call (allocate-instance ,class) ,@(or init (list "init")) id)))
      (unwind-protect
           (progn ,@body)
        (free-instance ,var))))
@@ -97,11 +89,32 @@
   (:cancel 0)
   (:ok 1))
 
+(cffi:defcenum NSWindowStyleMask
+  (:borderless 0)
+  (:titled 1)
+  (:closable 2)
+  (:miniaturizable 4)
+  (:resizable 8)
+  (:utility-window 16)
+  (:doc-modal-window 32)
+  (:non-activating-panel 64)
+  (:unified-title-and-toolbar 4096)
+  (:full-screen 16384)
+  (:full-size-content-view 32768)
+  (:hud-window 8192))
+
+(cffi:defcenum NSBackingStoreType
+  (:buffered 2))
+
 (defun test ()
   (let ((app (objc-call "NSApplication" "sharedApplication" :pointer)))
     (print :a)
     (objc-call app "setActivationPolicy" NSApplicationActivationPolicy :regular :bool)
     (print :b)
-    (with-instance (window "NSWindow")
-      (objc-call app "runModalForWindow" :pointer (cffi:null-pointer) NSModalResponse))
+    (with-instance (window "NSWindow" "initWithContentRect"
+                           :pointer (ns-make-rect 0 0 320 240)
+                           NSWindowStyleMask :titled
+                           NSBackingStoreType :buffered
+                           :bool NIL)
+      (objc-call app "runModalForWindow" :pointer window NSModalResponse))
     (print :c)))

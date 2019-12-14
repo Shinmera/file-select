@@ -32,4 +32,5 @@
 
 (defpackage #:org.shirakumo.file-select.macos
   (:use #:cl #:org.shirakumo.file-select)
-  (:export #:macos))
+  (:export #:macos)
+  (:shadow #:allocate-instance))
