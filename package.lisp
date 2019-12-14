@@ -30,6 +30,6 @@
   (:use #:cl #:org.shirakumo.file-select)
   (:export #:zenity))
 
-(defpackage #:org.shirakumo.file-select.ios
+(defpackage #:org.shirakumo.file-select.macos
   (:use #:cl #:org.shirakumo.file-select)
-  (:export #:ios))
+  (:export #:macos))
