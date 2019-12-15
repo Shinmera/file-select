@@ -31,14 +31,21 @@
             (make-instance class))))
 
 (defgeneric finalize (backend))
-(defgeneric new-with (backend &key title default filter multiple &allow-other-keys))
+(defgeneric new-with (backend &key title default filter &allow-other-keys))
 (defgeneric existing-with (backend &key title default filter multiple &allow-other-keys))
+
+(defmethod finalize ((backend symbol))
+  (finalize (find-class backend)))
 
 (defmethod new-with ((backend symbol) &rest args)
   (apply #'new-with (find-class backend) args))
 
 (defmethod existing-with ((backend symbol) &rest args)
   (apply #'existing-with (find-class backend) args))
+
+(defmethod finalize ((backend class))
+  (let ((instance (gethash backend *backend-cache*)))
+    (when instance (finalize instance))))
 
 (defmethod new-with ((backend class) &rest args &key (title "New File"))
   (apply #'new-with (get-backend backend) :title title args))

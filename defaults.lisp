@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.file-select)
 
-(define-condition file-select-backend-not-found (warning)
+(define-condition no-backend-found (file-select-error)
   ()
   (:report (lambda (c s) (format s "No usable backend for file-select could be found!"))))
 
@@ -40,4 +40,4 @@
          (cffi:close-foreign-library 'org.shirakumo.file-select.gtk:gtk)
          'org.shirakumo.file-select.gtk:gtk)
         (T
-         (warn 'file-select-backend-not-found))))
+         (warn 'no-backend-found))))
