@@ -32,7 +32,7 @@
                                      ((eql :directory))
                                      (string `(("" ,filter)))
                                      (list filter))
-                collect (format NIL "--file-filter=~a | ~a" name type)))))
+                collect (format NIL "--file-filter=~a | *.~a" name type)))))
 
 (defmethod new-with ((backend zenity) &rest args)
   (apply #'zenity* :save T args))

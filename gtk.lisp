@@ -73,13 +73,13 @@
     (etypecase filter
       (string
        (let ((f (new-filter)))
-         (add-pattern f filter)
+         (add-pattern f (format NIL "*.~a" filter))
          (add-filter dialog f)))
       (list
-       (loop for (name pattern) in filter
+       (loop for (name type) in filter
              for f = (new-filter)
              do (set-name f name)
-                (add-pattern f pattern)
+                (add-pattern f (format NIL "*.~a" type))
                 (add-filter dialog f)))
       ((eql :directory)))
     (unwind-protect

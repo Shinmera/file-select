@@ -401,7 +401,7 @@
               (loop for i from 0 by 2
                     for (name type) in filter
                     do (setf (cffi:mem-aref structure :pointer (+ 0 i)) (wstring name))
-                       (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring type)))
+                       (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring (format NIL "*.~a" type))))
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
             (let ((filename (file-namestring default))
