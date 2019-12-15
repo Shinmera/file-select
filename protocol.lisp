@@ -12,11 +12,16 @@
 (define-condition file-select-error (error)
   ())
 
-(defun existing (&rest args &key title default filter multiple (backend *default-backend*))
-  (apply #'existing-with backend args))
+(defun default-backend ()
+  (if (boundp '*default-backend*)
+      *default-backend*
+      (setf *default-backend* (determine-default-backend))))
 
-(defun new (&rest args &key title default filter multiple (backend *default-backend*))
-  (apply #'new-with backend args))
+(defun existing (&rest args &key title default filter multiple backend)
+  (apply #'existing-with (or backend (default-backend)) args))
+
+(defun new (&rest args &key title default filter multiple backend)
+  (apply #'new-with (or backend (default-backend)) args))
 
 (defclass backend () ())
 

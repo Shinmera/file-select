@@ -41,6 +41,3 @@
          'org.shirakumo.file-select.gtk:gtk)
         (T
          (warn 'file-select-backend-not-found))))
-
-(unless (boundp '*default-backend*)
-  (setf *default-backend* (determine-default-backend)))
