@@ -16,7 +16,11 @@
    #:new-with
    #:existing-with
    #:native-namestring
-   #:parse-native-namestring))
+   #:parse-native-namestring)
+  ;; defaults.lisp
+  (:export
+   #:file-select-backend-not-found
+   #:determine-default-backend))
 
 (defpackage #:org.shirakumo.file-select.gtk
   (:use #:cl #:org.shirakumo.file-select)
