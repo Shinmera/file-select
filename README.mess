@@ -1,1 +1,20 @@
-# DON'T LOOK, AAAAAAAAAA
+## About File-Select
+This library allows you to open native file dialogs to open and save files. This is useful if you have an application that's primarily text based and would like a more convenient file selection utility, or if you are working with a UI toolkit that does not offer a way to access the native file dialogs directly.
+
+## How To
+After loading it, simply invoke ``new`` or ``existing``. This should bring up a file dialog in the preferred backend for your current system. The backend to use is determined on first call.
+
+:: lisp
+(org.shirakumo.file-select:new :type "png")
+(org.shirakumo.file-select:existing :multiple T)
+::
+
+Returned are two values -- the file or files selected as pathnames, and whether the user successfully completed the selection. If the second value is ``NIL``, it means the user aborted the operation by closing or cancelling the dialog.
+
+## Supported Backends
+The following file selection backends are currently supported:
+
+- ``gtk``
+- ``macos`` (AppKit/Cocoa)
+- ``win32`` (IFileDialog)
+- ``zenity``

@@ -1,0 +1,205 @@
+<!DOCTYPE html> <html lang="EN"> <head> <meta charset="utf-8"> <title>File Select</title> <style>html body{margin:0 auto 0 auto;padding:20px;max-width:1024px;font-family:sans-serif;font-size:14pt;overflow-y:scroll;}html body a{text-decoration:none;}html body a[href]{color:#0055AA;}html body a[href]:hover{color:#0088EE;}html body pre{background:#FAFAFA;border:1px solid #DDDDDD;padding:0.75em;overflow-x:auto;}html body pre >code a[href]{color:#223388;}article.project h1{font-size:1.7em;}article.project h1,article.project h2,article.project h3,article.project h4,article.project h5,article.project h6{margin:0.2em 0 0.1em 0;text-indent:1em;}article.project >header{text-align:center;}article.project >header img.logo{display:block;margin:auto;max-height:170px;}article.project >header h1{display:inline-block;text-indent:0;font-size:2.5em;}article.project >header .version{vertical-align:bottom;}article.project >header .languages{margin-top:-0.5em;text-transform:capitalize;}article.project >header .description{margin:0;}article.project >header .pages{margin-top:0.5em;font-size:1.2em;text-transform:capitalize;}article.project >header .pages a{display:inline-block;padding:0 0.2em;}article.project >section{margin:1em 0 1em 0;}article.project #index >ul{list-style:none;margin:0;padding:0;}article.project .row label{display:inline-block;min-width:6em;}article.project #system .row{display:flex;}article.project #system #dependencies{display:inline;margin:0;padding:0;}article.project #system #dependencies li{display:inline;padding:0 0.2em;}article.definition{margin:1em 0 0 0;}article.definition >header h1,article.definition >header h2,article.definition >header h3,article.definition >header h4,article.definition >header h5,article.definition >header h6{text-indent:0;display:inline-block;}article.definition >header ul{display:inline-block;list-style:none;margin:0;padding:0;}article.definition >header ul li{display:inline-block;padding:0 0.2em 0 0;}article.definition >header .visibility{display:none;}article.definition >header .visibility,article.definition >header .type{text-transform:lowercase;}article.definition >header .source-link{visibility:hidden;float:right;}article.definition >header .source-link:after{visibility:visible;content:"[SRC]";}article.definition .docstring{margin:0 0 0 1em;}article.definition .docstring pre{font-size:0.8em;white-space:pre-wrap;}.definition.package >header ul.nicknames{display:inline-block;list-style:none;margin:0;padding:0 0 0 1em;}.definition.package >header ul.nicknames li{display:inline;}.definition.package >header ul.nicknames:before{content:"(";}.definition.package >header ul.nicknames:after{content:")";}.definition.package ul.definitions{margin:0;list-style:none;padding:0 0 0 0.5em;}.definition.callable >header .name:before,.definition.type >header .name:before{content:"(";font-weight:normal;}.definition.callable >header .arguments:after,.definition.type >header .arguments:after{content:")";}.definition.callable >header .arguments .arguments:before,.definition.type >header .arguments .arguments:before{content:"(";}.definition.callable >header .arguments .argument,.definition.type >header .arguments .argument{padding:0;}.definition.callable >header .arguments .argument.lambda-list-keyword,.definition.type >header .arguments .argument.lambda-list-keyword{color:#991155;}.definition li>mark{background:none;border-left:0.3em solid #0088EE;padding-left:0.3em;display:block;}</style> </head> <body> <article class="project"> <header>  <h1>file select</h1>  <span class="version">1.0.0</span>  <nav class="languages">  <a href="index.html">English</a>  </nav>  <p class="description">A library to invoke the native file selection dialogs to open or save files.</p>  <nav class="pages">  <a href="index.html">file select</a>  </nav> </header> <section id="documentation"><article><h2 id="About File-Select">About File-Select</h2><p>This library allows you to open native file dialogs to open and save files. This is useful if you have an application that's primarily text based and would like a more convenient file selection utility, or if you are working with a UI toolkit that does not offer a way to access the native file dialogs directly.</p><h2 id="How To">How To</h2><p>After loading it, simply invoke <code><a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW" class="xref">new</a></code> or <code><a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING" class="xref">existing</a></code>. This should bring up a file dialog in the preferred backend for your current system. The backend to use is determined on first call.</p><code style="display:block" class="code-block" data-language="lisp"><pre>(<a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW" class="xref">org.shirakumo.file-select:new</a> :type &quot;png&quot;)
+(<a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING" class="xref">org.shirakumo.file-select:existing</a> :multiple T)</pre></code><p>Returned are two values – the file or files selected as pathnames, and whether the user successfully completed the selection. If the second value is <code>NIL</code>, it means the user aborted the operation by closing or cancelling the dialog.</p><h2 id="Supported Backends">Supported Backends</h2><p>The following file selection backends are currently supported:</p><ul><li><p><code><a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.GTK%3AGTK" class="xref">gtk</a></code></p></li><li><p><code><a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.MACOS%3AMACOS" class="xref">macos</a></code> (AppKit/Cocoa)</p></li><li><p><code><a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.WIN32%3AWIN32" class="xref">win32</a></code> (IFileDialog)</p></li><li><p><code><a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT.ZENITY%3AZENITY" class="xref">zenity</a></code></p></li></ul></article></section>   <section id="system"> <h2>System Information</h2>  <div class="row"> <label for="version">Version:</label> <a id="version">1.0.0</a> </div>   <div class="row"> <label for="dependencies">Dependencies:</label> <ul id="dependencies"><li><a class="external">cffi</a></li><li><a class="external" href="https://github.com/Shinmera/float-features">float-features</a></li><li><a class="external">trivial-features</a></li><li><a class="external" href="https://Shinmera.github.io/documentation-utils/">documentation-utils</a></li></ul> </div>   <div class="row"> <label for="author">Author:</label> <a id="author" href="mailto:shinmera@tymoon.eu">Nicolas Hafner</a> </div>   <div class="row"> <label for="license">License:</label> <a id="license" href="https://github.com/shinmera/file-select/blob/master/LICENSE">zlib</a> </div>   <div class="row"> <label for="homepage">Homepage:</label> <a id="homepage" href="https://shinmera.github.io/file-select/">https://shinmera.github.io/file-select/</a> </div>  </section>    <section id="index"> <h2>Definition Index</h2> <ul> <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.FILE-SELECT"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.FILE-SELECT">ORG.SHIRAKUMO.FILE-SELECT</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition special-variable" id="VARIABLE ORG.SHIRAKUMO.FILE-SELECT:*DEFAULT-BACKEND*"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SPECIAL-VARIABLE</span> <h4 class="name"> <a href="#VARIABLE%20ORG.SHIRAKUMO.FILE-SELECT%3A%2ADEFAULT-BACKEND%2A">*DEFAULT-BACKEND*</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L10">Source</a>  </header> <div class="docstring"><pre>Holds the name of the default file selection backend to use.
+
+This should be a value suitable for the first argument of NEW-WITH and
+EXISTING-WITH.
+
+On first call of NEW or EXISTING, if this variable is still unbound,
+it is set to the value of DETERMINE-DEFAULT-BACKEND.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW" class="xref">NEW</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING" class="xref">EXISTING</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ADETERMINE-DEFAULT-BACKEND" class="xref">DETERMINE-DEFAULT-BACKEND</a></pre></div> </article> </li>  <li> <article class="definition class" id="CLASS ORG.SHIRAKUMO.FILE-SELECT:BACKEND"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND">BACKEND</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L26">Source</a>  </header> <div class="docstring"><pre>Superclass for all file selection backend implementations.
+
+The user should not create instances of this class, or any of its
+subclasses. The system will automatically construct singleton
+instances of the class when used with NEW-WITH and EXISTING-WITH.
+
+When creating a subclass, you may use INITIALIZE-INSTANCE to perform
+one-time setup, such as loading and initialising foreign libraries.
+
+In order to uninitialize the libraries, you should implement a
+FINALIZE method.
+
+The user may call FINALIZE on a backend instance or name. The instance
+will be invalidated afterwards, and a repeat call on NEW-WITH or
+EXISTING-WITH with the backend name will create a new instance.
+
+See <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AFINALIZE" class="xref">FINALIZE</a>
+See <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW-WITH" class="xref">NEW-WITH</a>
+See <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING-WITH" class="xref">EXISTING-WITH</a></pre></div> </article> </li>  <li> <article class="definition condition" id="CONDITION ORG.SHIRAKUMO.FILE-SELECT:FILE-SELECT-ERROR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CONDITION</span> <h4 class="name"> <a href="#CONDITION%20ORG.SHIRAKUMO.FILE-SELECT%3AFILE-SELECT-ERROR">FILE-SELECT-ERROR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L12">Source</a>  </header> <div class="docstring"><pre>Superclass for any kind of error signalled during the file selection.
+
+Typically a subclass of this error is signalled depending on the
+backend used. This kind of error should only every be signalled if
+critical problems occur that prevent the backend from operating
+correctly.</pre></div> </article> </li>  <li> <article class="definition condition" id="CONDITION ORG.SHIRAKUMO.FILE-SELECT:NO-BACKEND-FOUND"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CONDITION</span> <h4 class="name"> <a href="#CONDITION%20ORG.SHIRAKUMO.FILE-SELECT%3ANO-BACKEND-FOUND">NO-BACKEND-FOUND</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/defaults.lisp#L9">Source</a>  </header> <div class="docstring"><pre>Error signalled when no backend could be found.
+
+This usually means that no implementation for file selection is
+available. It could mean that auto-detection failed, in which case
+*DEFAULT-BACKEND* should be manually set to the proper value.
+
+See <a href="#VARIABLE%20ORG.SHIRAKUMO.FILE-SELECT%3A%2ADEFAULT-BACKEND%2A" class="xref">*DEFAULT-BACKEND*</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ADETERMINE-DEFAULT-BACKEND" class="xref">DETERMINE-DEFAULT-BACKEND</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT:DETERMINE-DEFAULT-BACKEND"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ADETERMINE-DEFAULT-BACKEND">DETERMINE-DEFAULT-BACKEND</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/defaults.lisp#L32">Source</a>  </header> <div class="docstring"><pre>Attempt to determine the proper backend to use for the current system.
+
+This will return the name of the class to use for the backend, or
+signal an error of type NO-BACKEND-FOUND if no usable backend could be
+found at all.
+
+More specifically, the following detection heuristic is used:
+
+- On WIN32, the WIN32 backend is used.
+- On DARWIN, the MACOS backend is used.
+- If a &quot;zenity&quot; binary is found in one of the PATH directories, the
+  ZENITY backend is used.
+- If the gtk3 shared library file can be loaded, the GTK backend is
+  used.
+- Otherwise NO-BACKEND-FOUND is signalled.
+
+See <a href="#CONDITION%20ORG.SHIRAKUMO.FILE-SELECT%3ANO-BACKEND-FOUND" class="xref">NO-BACKEND-FOUND</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT:EXISTING"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING">EXISTING</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">TITLE</li>    <li class="argument">DEFAULT</li>    <li class="argument">FILTER</li>    <li class="argument">MULTIPLE</li>    <li class="argument">BACKEND</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L20">Source</a>  </header> <div class="docstring"><pre>Select an existing file.
+
+This will open an &quot;open file&quot; dialog.
+
+Returns two values:
+
+- The selected file as a pathname, or as a list if multiple.
+- Whether the user completed the operation successfully
+
+If no BACKEND is specified, *DEFAULT-BACKEND* is used.
+
+TITLE may be a string to designate the file dialog window title.
+
+DEFAULT should be a pathname pointing to a default file or directory
+that the dialog should present on opening.
+
+FILTER can be one of the following:
+
+  :DIRECTORY     --- Only allow selecting directories.
+  STRING         --- Shorthand for ((&quot;&quot; TYPE))
+  ((NAME TYPE)*) --- Restrict the file selection to the specified
+                     types. NAME should be a human-readable
+                     description, and TYPE should be a PATHNAME-TYPE
+                     to allow for selection.
+
+MULTIPLE designates whether multiple files can be selected. In that
+case, the first return value is always a list.
+
+A backend may support additional arguments.
+
+See <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING-WITH" class="xref">EXISTING-WITH</a>
+See <a href="#VARIABLE%20ORG.SHIRAKUMO.FILE-SELECT%3A%2ADEFAULT-BACKEND%2A" class="xref">*DEFAULT-BACKEND*</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT:NATIVE-NAMESTRING"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANATIVE-NAMESTRING">NATIVE-NAMESTRING</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PATH</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L62">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT:NEW"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW">NEW</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">TITLE</li>    <li class="argument">DEFAULT</li>    <li class="argument">FILTER</li>    <li class="argument">MULTIPLE</li>    <li class="argument">BACKEND</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L23">Source</a>  </header> <div class="docstring"><pre>Select a new file.
+
+This will open a &quot;save file&quot; dialog.
+
+Returns two values:
+
+- The selected file as a pathname, if any
+- Whether the user completed the operation successfully
+
+If no BACKEND is specified, *DEFAULT-BACKEND* is used.
+
+TITLE may be a string to designate the file dialog window title.
+
+DEFAULT should be a pathname pointing to a default file or directory
+that the dialog should present on opening.
+
+FILTER can be one of the following:
+
+  :DIRECTORY     --- Only allow selecting directories.
+  STRING         --- Shorthand for ((&quot;&quot; TYPE))
+  ((NAME TYPE)*) --- Restrict the file selection to the specified
+                     types. NAME should be a human-readable
+                     description, and TYPE should be a PATHNAME-TYPE
+                     to allow for selection.
+
+A backend may support additional arguments.
+
+See <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW-WITH" class="xref">NEW-WITH</a>
+See <a href="#VARIABLE%20ORG.SHIRAKUMO.FILE-SELECT%3A%2ADEFAULT-BACKEND%2A" class="xref">*DEFAULT-BACKEND*</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT:PARSE-NATIVE-NAMESTRING"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3APARSE-NATIVE-NAMESTRING">PARSE-NATIVE-NAMESTRING</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PATH</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L68">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION ORG.SHIRAKUMO.FILE-SELECT:EXISTING-WITH"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING-WITH">EXISTING-WITH</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">BACKEND</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">TITLE</li>    <li class="argument">DEFAULT</li>    <li class="argument">FILTER</li>    <li class="argument">MULTIPLE</li>    <li class="argument lambda-list-keyword">&amp;ALLOW-OTHER-KEYS</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L35">Source</a>  </header> <div class="docstring"><pre>Open an &quot;open file&quot; dialog with the specified backend.
+
+The implementation must adhere to the protocol specified in EXISTING.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AEXISTING" class="xref">EXISTING</a>
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION ORG.SHIRAKUMO.FILE-SELECT:FINALIZE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3AFINALIZE">FINALIZE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">BACKEND</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L33">Source</a>  </header> <div class="docstring"><pre>Finalize the backend and free any resources it might have allocated.
+
+This will NOT close any foreign libraries it might have opened.
+After calling FINALIZE on a backend, the backend instance is
+invalidated and may not be used again.
+
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION ORG.SHIRAKUMO.FILE-SELECT:NEW-WITH"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW-WITH">NEW-WITH</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">BACKEND</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">TITLE</li>    <li class="argument">DEFAULT</li>    <li class="argument">FILTER</li>    <li class="argument">MULTIPLE</li>    <li class="argument lambda-list-keyword">&amp;ALLOW-OTHER-KEYS</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/protocol.lisp#L34">Source</a>  </header> <div class="docstring"><pre>Open a &quot;save file&quot; dialog with the specified backend.
+
+The implementation must adhere to the protocol specified in NEW.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT%3ANEW" class="xref">NEW</a>
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li> </ul> </article> </li>  <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.FILE-SELECT.GTK"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.FILE-SELECT.GTK">ORG.SHIRAKUMO.FILE-SELECT.GTK</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class" id="CLASS ORG.SHIRAKUMO.FILE-SELECT.GTK:GTK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.GTK%3AGTK">GTK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/gtk.lisp#L21">Source</a>  </header> <div class="docstring"><pre>Implementation using the GTK3 framework.
+
+Note that this will create and destroy a new GTK application on every
+use, and requires the GTK3 libraries to be present.
+
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li> </ul> </article> </li>  <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.FILE-SELECT.MACOS"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.FILE-SELECT.MACOS">ORG.SHIRAKUMO.FILE-SELECT.MACOS</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class" id="CLASS ORG.SHIRAKUMO.FILE-SELECT.MACOS:MACOS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.MACOS%3AMACOS">MACOS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/macos.lisp#L18">Source</a>  </header> <div class="docstring"><pre>Implementation using the AppKit/Cocoa framework (OSX 10.0 and above).
+
+Note that MacOS requires all UI to happen in Thread 0. To this end,
+this implementation makes use of TRIVIAL-MAIN-THREAD to schedule the
+file selection in the main thread, if it isn't already.
+
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li> </ul> </article> </li>  <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.FILE-SELECT.WIN32"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.FILE-SELECT.WIN32">ORG.SHIRAKUMO.FILE-SELECT.WIN32</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class" id="CLASS ORG.SHIRAKUMO.FILE-SELECT.WIN32:WIN32"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.WIN32%3AWIN32">WIN32</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/win32.lisp#L31">Source</a>  </header> <div class="docstring"><pre>Implementation using the Win32 IFileDialog framework (Win Vista and above).
+
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li> </ul> </article> </li>  <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.FILE-SELECT.ZENITY"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.FILE-SELECT.ZENITY">ORG.SHIRAKUMO.FILE-SELECT.ZENITY</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class" id="CLASS ORG.SHIRAKUMO.FILE-SELECT.ZENITY:ZENITY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT.ZENITY%3AZENITY">ZENITY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/zenity.lisp#L9">Source</a>  </header> <div class="docstring"><pre>Implementation using the Zenity GTK dialog utility.
+
+This is preferable over the native GTK backend as it does not require
+loading the foreign libraries or constructing a GTK application
+in-process. UIOP:RUN-PROGRAM is used to launch the Zenity process.
+
+See <a href="#CLASS%20ORG.SHIRAKUMO.FILE-SELECT%3ABACKEND" class="xref">BACKEND</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.FILE-SELECT.ZENITY:ZENITY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.FILE-SELECT.ZENITY%3AZENITY">ZENITY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">ARGS</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/file-select/blob/master/zenity.lisp#L14">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li> </ul> </article> </li> </ul> </section>  </article> <script>window.addEventListener("DOMContentLoaded", function(){
+    var unmarkElement = function(el){
+        if(el.tagName === "mark" || el.tagName === "MARK"){
+            [].forEach.call(el.childNodes, function(child){
+                el.parentNode.insertBefore(child, el);
+            });
+            el.parentNode.removeChild(el);
+        }else if(el.parentNode.tagName === "mark"){
+            return unmarkElement(el.parentNode);
+        }
+        return null;
+    }
+
+    var unmarkAll = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("mark"), unmarkElement);
+    }
+    
+    var markElement = function(el){
+        if(el.parentNode.tagName === "mark" || el.parentNode.tagName === "MARK"){
+            return el.parentNode;
+        } else {
+            unmarkAll();
+            var marked = document.createElement("mark");
+            el.parentNode.insertBefore(marked, el);
+            marked.appendChild(el);
+            return marked;
+        }
+    }
+
+    var markFragmented = function(){
+        if(window.location.hash){
+            var el = document.getElementById(decodeURIComponent(window.location.hash.substr(1)));
+            if(el) markElement(el);
+        }
+    }
+
+    var registerXrefLink = function(link){
+        var el = document.getElementById(decodeURIComponent(link.getAttribute("href").substr(1)));
+        if(el){
+            link.addEventListener("click", function(){
+                markElement(el);
+            });
+        }
+    }
+
+    var registerXrefLinks = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("a.xref"), registerXrefLink);
+    }
+
+    markFragmented();
+    registerXrefLinks();
+}); </script> </body> </html> 
