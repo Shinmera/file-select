@@ -18,7 +18,7 @@
                (:file "protocol")
                (:file "gtk")
                (:file "zenity")
-               (:file "macos" :if-feature :darwin)
+               (:file "macos")
                (:file "win32")
                (:file "defaults")
                (:file "documentation"))

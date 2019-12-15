@@ -126,9 +126,13 @@
     (unless (cffi:null-pointer-p event)
       (objc-call app "sendEvent:" :pointer event))))
 
+(defmacro with-body-in-main-thread (args &body body)
+  #+darwin `(trivial-main-thread:with-body-in-main-thread ,args ,@body)
+  #-darwin `(progn ,@body))
+
 (defun open* (class constructor &key title default filter multiple message backend)
   (declare (ignore backend))
-  (trivial-main-thread:with-body-in-main-thread (:blocking T)
+  (with-body-in-main-thread (:blocking T)
     (float-features:with-float-traps-masked T
       (let ((strings ()))
         (unwind-protect
