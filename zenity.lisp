@@ -17,22 +17,27 @@
 
 (defun zenity* (&key title default filter multiple save backend)
   (declare (ignore backend))
-  (org.shirakumo.file-select::split
-   #\Return
-   (apply #'zenity
-          "--file-selection"
-          "--separator=
+  (handler-case
+      (values
+       (org.shirakumo.file-select::split
+        #\Linefeed
+        (apply #'zenity
+               "--file-selection"
+               "--separator=
 "
-          (format NIL "--title=~a" title)
-          (when save "--save")
-          (when multiple "--multiple")
-          (when (eq filter :directory) "--directory")
-          (when default (format NIL "--filename=~a" (file-namestring default)))
-          (loop for (name type) in (etypecase filter
-                                     ((eql :directory))
-                                     (string `(("" ,filter)))
-                                     (list filter))
-                collect (format NIL "--file-filter=~a | *.~a" name type)))))
+               (format NIL "--title=~a" title)
+               (when save "--save")
+               (when multiple "--multiple")
+               (when (eq filter :directory) "--directory")
+               (when default (format NIL "--filename=~a" (file-namestring default)))
+               (loop for (name type) in (etypecase filter
+                                          ((eql :directory))
+                                          (string `(("" ,filter)))
+                                          (list filter))
+                     collect (format NIL "--file-filter=~a | *.~a" name type))))
+       T)
+    (error ()
+      (values NIL NIL))))
 
 (defmethod new-with ((backend zenity) &rest args)
   (apply #'zenity* :save T args))
