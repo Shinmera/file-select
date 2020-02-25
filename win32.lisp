@@ -238,23 +238,29 @@
                    d))
     ptr))
 
-(defvar CLSID-FILE-SAVE-DIALOG
-  (make-guid #xC0B4E2F3 #xBA21 #x4773 #x8D #xBA #x33 #x5E #xC9 #x46 #xEB #x8B))
+(defmacro define-guid (name &rest guid)
+  `(let (value)
+     (defun ,name ()
+       (or value (setf value (make-guid ,@guid))))
+     (define-symbol-macro ,name (,name))))
 
-(defvar CLSID-FILE-OPEN-DIALOG
-  (make-guid #xDC1C5A9C #xE88A #x4DDE #xA5 #xA1 #x60 #xF8 #x2A #x20 #xAE #xF7))
+(define-guid CLSID-FILE-SAVE-DIALOG
+  #xC0B4E2F3 #xBA21 #x4773 #x8D #xBA #x33 #x5E #xC9 #x46 #xEB #x8B)
 
-(defvar IID-IFILE-DIALOG
-  (make-guid #x42F85136 #xDB7E #x439C #x85 #xF1 #xE4 #x07 #x5D #x13 #x5F #xC8))
+(define-guid CLSID-FILE-OPEN-DIALOG
+  #xDC1C5A9C #xE88A #x4DDE #xA5 #xA1 #x60 #xF8 #x2A #x20 #xAE #xF7)
 
-(defvar IID-IFILE-SAVE-DIALOG
-  (make-guid #x84BCCD23 #x5FDE #x4CDB #xAE #xA4 #xAF #x64 #xB8 #x3D #x78 #xAB))
+(define-guid IID-IFILE-DIALOG
+  #x42F85136 #xDB7E #x439C #x85 #xF1 #xE4 #x07 #x5D #x13 #x5F #xC8)
 
-(defvar IID-IFILE-OPEN-DIALOG
-  (make-guid #xD57C7288 #xD4AD #x4768 #xBE #x02 #x9D #x96 #x95 #x32 #xD9 #x60))
+(define-guid IID-IFILE-SAVE-DIALOG
+  #x84BCCD23 #x5FDE #x4CDB #xAE #xA4 #xAF #x64 #xB8 #x3D #x78 #xAB)
 
-(defvar IID-ISHELL-ITEM
-  (make-guid #x43826D1E #xE718 #x42EE #xBC #x55 #xA1 #xE2 #x61 #xC3 #x7B #xFE))
+(define-guid IID-IFILE-OPEN-DIALOG
+  #xD57C7288 #xD4AD #x4768 #xBE #x02 #x9D #x96 #x95 #x32 #xD9 #x60)
+
+(define-guid IID-ISHELL-ITEM
+  #x43826D1E #xE718 #x42EE #xBC #x55 #xA1 #xE2 #x61 #xC3 #x7B #xFE)
 
 (defmacro define-comfun ((struct method &rest options) return-type &body args)
   (let* ((*print-case* (readtable-case *readtable*))
