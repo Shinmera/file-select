@@ -24,7 +24,7 @@
 (defmacro check-return (value-form &rest expected)
   (let ((value (gensym "VALUE")))
     `(let ((,value ,value-form))
-       (if (find ,value ',(or expected '(:ok)))
+       (if (find ,value ',(or expected '(:ok :false)))
            ,value
            (error 'win32-error :code ,value :function-name ',(first value-form))))))
 
@@ -56,6 +56,7 @@
 
 (cffi:defcenum hresult
   (:ok #x00000000)
+  (:false #x00000001)
   (:abort #x80004004)
   (:cancelled #x800704C7)
   (:access-denied #x80070005)
