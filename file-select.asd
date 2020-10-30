@@ -16,10 +16,10 @@
   :serial T
   :components ((:file "package")
                (:file "protocol")
-               (:file "gtk")
-               (:file "zenity")
-               (:file "macos")
-               (:file "win32")
+               (:file "gtk" :if-feature :linux)
+               (:file "zenity" :if-feature :linux)
+               (:file "macos" :if-feature :darwin)
+               (:file "win32" :if-feature :windows)
                (:file "defaults")
                (:file "documentation"))
   :depends-on (:cffi
