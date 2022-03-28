@@ -6,14 +6,27 @@
 
 (in-package #:org.shirakumo.file-select.win32)
 
-(defconstant CP-UTF8 65001)
-(defconstant CLSCTX-ALL 23)
 (cffi:defctype word :uint16)
 (cffi:defctype dword :uint32)
 (cffi:defctype sfgaof :ulong)
 
-(cffi:define-foreign-library ole32
-  (:windows "Ole32.dll"))
+(com:define-guid CLSID-FILE-SAVE-DIALOG
+  #xC0B4E2F3 #xBA21 #x4773 #x8D #xBA #x33 #x5E #xC9 #x46 #xEB #x8B)
+
+(com:define-guid CLSID-FILE-OPEN-DIALOG
+  #xDC1C5A9C #xE88A #x4DDE #xA5 #xA1 #x60 #xF8 #x2A #x20 #xAE #xF7)
+
+(com:define-guid IID-IFILE-DIALOG
+  #x42F85136 #xDB7E #x439C #x85 #xF1 #xE4 #x07 #x5D #x13 #x5F #xC8)
+
+(com:define-guid IID-IFILE-SAVE-DIALOG
+  #x84BCCD23 #x5FDE #x4CDB #xAE #xA4 #xAF #x64 #xB8 #x3D #x78 #xAB)
+
+(com:define-guid IID-IFILE-OPEN-DIALOG
+  #xD57C7288 #xD4AD #x4768 #xBE #x02 #x9D #x96 #x95 #x32 #xD9 #x60)
+
+(com:define-guid IID-ISHELL-ITEM
+  #x43826D1E #xE718 #x42EE #xBC #x55 #xA1 #xE2 #x61 #xC3 #x7B #xFE)
 
 (define-condition win32-error (file-select-error)
   ((function-name :initarg :function-name :reader function-name)
@@ -32,12 +45,7 @@
   ())
 
 (defmethod initialize-instance :after ((backend win32) &key)
-  (cffi:use-foreign-library ole32)
-  (check-return
-   (co-initialize (cffi:null-pointer) :multi-threaded)))
-
-(defmethod finalize ((backend win32))
-  (co-uninitialize))
+  (com:init))
 
 (defmethod new-with ((backend win32) &key title default filter multiple &allow-other-keys)
   (open* CLSID-FILE-SAVE-DIALOG IID-IFILE-SAVE-DIALOG title default filter multiple))
@@ -47,49 +55,6 @@
 
 (defmacro unwind-protect* (cleanup &body body)
   `(unwind-protect (progn ,@body) ,cleanup))
-
-(cffi:defcenum coinit
-  (:apartment-threaded #x2)
-  (:multi-threaded #x0)
-  (:disable-ole1dde #x4)
-  (:speed-over-memory #x8))
-
-(cffi:defcenum hresult
-  (:ok #x00000000)
-  (:false #x00000001)
-  (:abort #x80004004)
-  (:cancelled #x800704C7)
-  (:access-denied #x80070005)
-  (:fail #x80004005)
-  (:handle #x80070006)
-  (:invalid-arg #x80070057)
-  (:no-interface #x80004002)
-  (:not-implemented #x80004001)
-  (:out-of-memory #x8007000e)
-  (:pointer #x80004003)
-  (:unexpected #x8000ffff)
-  (:already-initialized 2290679810)
-  (:bad-pointer 2147500035)
-  (:bufduration-period-not-equal 2290679827)
-  (:buffer-error 2290679832)
-  (:buffer-operation-pending 2290679819)
-  (:buffer-size-error 2290679830)
-  (:buffer-size-not-aligned 2290679833)
-  (:buffer-too-large 2290679814)
-  (:cpuusage-exceeded 2290679831)
-  (:device-in-use 2290679818)
-  (:device-invalidated 2290679812)
-  (:endpoint-create-failed 2290679823)
-  (:exclusive-mode-not-allowed 2290679822)
-  (:invalid-device-period 2290679840)
-  (:invalid-size 2290679817)
-  (:not-initialized 2290679809)
-  (:out-of-order 2290679815)
-  (:service-not-running 2290679824)
-  (:unsupported-format 2290679816)
-  (:wrong-endpoint-type 2290679811)
-  (:class-not-registered 2147746132)
-  (:no-aggregation 2147746064))
 
 (cffi:defcenum fileopendialogoptions
   (:overwrite-prompt #x2)
@@ -162,211 +127,86 @@
   :volatile-propertie-sonly
   :mask-valid)
 
-(cffi:defcstruct (com :conc-name ||)
-  (vtbl :pointer))
-
-(cffi:defcstruct (guid :conc-name guid-)
-  (data1 dword)
-  (data2 word)
-  (data3 word)
-  (data4 :uint8 :count 8))
-
-(cffi:defcfun (co-initialize "CoInitializeEx") hresult
-  (nullable :pointer)
-  (init coinit))
-
-(cffi:defcfun (co-uninitialize "CoUninitialize") :void)
-
-(cffi:defcfun (co-create-instance "CoCreateInstance") hresult
-  (rclsid :pointer)
-  (punkouter :pointer)
-  (dwclscontext dword)
-  (riid :pointer)
-  (ppv :pointer))
-
-(cffi:defcfun (create-item-from-parsing-name "SHCreateItemFromParsingName") hresult
+(cffi:defcfun (create-item-from-parsing-name "SHCreateItemFromParsingName") com:hresult
   (path :pointer)
   (ctx :pointer)
   (riid :pointer)
   (shell-item :pointer))
 
-(cffi:defcfun (wide-char-to-multi-byte "WideCharToMultiByte") :int
-  (code-page :uint)
-  (flags dword)
-  (wide-char-str :pointer)
-  (wide-char :int)
-  (multi-byte-str :pointer)
-  (multi-byte :int)
-  (default-char :pointer)
-  (used-default-char :pointer))
+(com:define-comstruct file-dialog
+  (show (owner :pointer))
+  (set-file-types (file-types :uint) (filter-spec :pointer))
+  (set-file-type-index (file-type :uint))
+  (get-file-type-index (file-type :pointer))
+  (advise (events :pointer) (cookie :pointer))
+  (unadvise (cookie dword))
+  (set-options (options fileopendialogoptions))
+  (get-options (options :pointer))
+  (set-default-folder (shell-item :pointer))
+  (set-folder (shell-item :pointer))
+  (get-folder (shell-item :pointer))
+  (get-current-selection (shell-item :pointer))
+  (set-file-name (name :pointer))
+  (get-file-name (name :pointer))
+  (set-title (title :pointer))
+  (set-ok-button-label (text :pointer))
+  (set-file-name-label (label :pointer))
+  (get-result (shell-item :pointer))
+  (add-place (shell-item :pointer) (fdap fdap))
+  (set-default-extension (extension :pointer))
+  (close (result com:hresult))
+  (set-client-guid (guid :pointer))
+  (clear-client-data)
+  (set-filter (filter :pointer)))
 
-(cffi:defcfun (multi-byte-to-wide-char "MultiByteToWideChar") :int
-  (code-page :uint)
-  (flags dword)
-  (multi-byte-str :pointer)
-  (multi-byte :int)
-  (wide-char-str :pointer)
-  (wide-char :int))
+(com:define-comstruct file-open-dialog
+  (show (owner :pointer))
+  (set-file-types (file-types :uint) (filter-spec :pointer))
+  (set-file-type-index (file-type :uint))
+  (get-file-type-index (file-type :pointer))
+  (advise (events :pointer) (cookie :pointer))
+  (unadvise (cookie dword))
+  (set-options (options fileopendialogoptions))
+  (get-options (options :pointer))
+  (set-default-folder (shell-item :pointer))
+  (set-folder (shell-item :pointer))
+  (get-folder (shell-item :pointer))
+  (get-current-selection (shell-item :pointer))
+  (set-file-name (name :pointer))
+  (get-file-name (name :pointer))
+  (set-title (title :pointer))
+  (set-ok-button-label (text :pointer))
+  (set-file-name-label (label :pointer))
+  (get-result (shell-item :pointer))
+  (add-place (shell-item :pointer) (fdap fdap))
+  (set-default-extension (extension :pointer))
+  (close (result com:hresult))
+  (set-client-guid (guid :pointer))
+  (clear-client-data)
+  (set-filter (filter :pointer))
+  (get-results (shell-item-array :pointer))
+  (get-selected-items (shell-item-array :pointer)))
 
-(defun wstring->string (pointer)
-  (let ((bytes (wide-char-to-multi-byte CP-UTF8 0 pointer -1 (cffi:null-pointer) 0 (cffi:null-pointer) (cffi:null-pointer))))
-    (cffi:with-foreign-object (string :uchar bytes)
-      (wide-char-to-multi-byte CP-UTF8 0 pointer -1 string bytes (cffi:null-pointer) (cffi:null-pointer))
-      (cffi:foreign-string-to-lisp string :encoding :utf-8))))
+(com:define-comstruct shell-item
+  (bind-to-handler (ctx :pointer) (bhid :pointer) (riid :pointer) (ppv :pointer))
+  (get-parent (parent :pointer))
+  (get-display-name (type sigdn) (name :pointer))
+  (get-attributes (mask sfgaof) (attributes :pointer))
+  (compare (shell-item :pointer) (hint sichintf) (pi-order :pointer)))
 
-(defun string->wstring (string)
-  (cffi:with-foreign-string (string string)
-    (let* ((chars (multi-byte-to-wide-char CP-UTF8 0 string -1 (cffi:null-pointer) 0))
-           (pointer (cffi:foreign-alloc :uint16 :count chars)))
-      (multi-byte-to-wide-char CP-UTF8 0 string -1 pointer chars)
-      pointer)))
-
-(defun com-release (pointer)
-  (cffi:foreign-funcall-pointer
-   (cffi:mem-aref (vtbl pointer) :pointer 2)
-   ()
-   :pointer pointer
-   :unsigned-long))
-
-(defun make-guid (d1 d2 d3 &rest d4)
-  (let ((ptr (cffi:foreign-alloc '(:struct guid))))
-    (setf (guid-data1 ptr) d1)
-    (setf (guid-data2 ptr) d2)
-    (setf (guid-data3 ptr) d3)
-    (loop for i from 0 below 8
-          for d in d4
-          do (setf (cffi:mem-aref (cffi:foreign-slot-pointer ptr '(:struct guid) 'data4) :uint8 i)
-                   d))
-    ptr))
-
-(defmacro define-guid (name &rest guid)
-  `(let (value)
-     (defun ,name ()
-       (or value (setf value (make-guid ,@guid))))
-     (define-symbol-macro ,name (,name))))
-
-(define-guid CLSID-FILE-SAVE-DIALOG
-  #xC0B4E2F3 #xBA21 #x4773 #x8D #xBA #x33 #x5E #xC9 #x46 #xEB #x8B)
-
-(define-guid CLSID-FILE-OPEN-DIALOG
-  #xDC1C5A9C #xE88A #x4DDE #xA5 #xA1 #x60 #xF8 #x2A #x20 #xAE #xF7)
-
-(define-guid IID-IFILE-DIALOG
-  #x42F85136 #xDB7E #x439C #x85 #xF1 #xE4 #x07 #x5D #x13 #x5F #xC8)
-
-(define-guid IID-IFILE-SAVE-DIALOG
-  #x84BCCD23 #x5FDE #x4CDB #xAE #xA4 #xAF #x64 #xB8 #x3D #x78 #xAB)
-
-(define-guid IID-IFILE-OPEN-DIALOG
-  #xD57C7288 #xD4AD #x4768 #xBE #x02 #x9D #x96 #x95 #x32 #xD9 #x60)
-
-(define-guid IID-ISHELL-ITEM
-  #x43826D1E #xE718 #x42EE #xBC #x55 #xA1 #xE2 #x61 #xC3 #x7B #xFE)
-
-(defmacro define-comfun ((struct method &rest options) return-type &body args)
-  (let* ((*print-case* (readtable-case *readtable*))
-         (structg (gensym "STRUCT"))
-         (name (intern (format NIL "~a-~a" struct method))))
-    `(progn
-       (declaim (inline ,name))
-       (defun ,name (,structg ,@(mapcar #'first args))
-         (cffi:foreign-funcall-pointer
-          (,(intern (format NIL "%~a" name))
-           (vtbl ,structg))
-          ,options
-          :pointer ,structg
-          ,@(loop for (name type) in args
-                  collect type collect name)
-          ,return-type)))))
-
-(defmacro define-comstruct (name &body methods)
-  (let ((methods (list* `(query-interface hresult)
-                        `(add-ref :unsigned-long)
-                        `(release :unsigned-long)
-                        methods)))
-    `(progn
-       (cffi:defcstruct (,name :conc-name ,(format NIL "%~a-" name))
-         ,@(loop for method in methods
-                 collect (list (first method) :pointer)))
-
-       ,@(loop for (method return . args) in methods
-               collect `(define-comfun (,name ,method) ,return
-                          ,@args)))))
-
-(define-comstruct file-dialog
-  (show hresult (owner :pointer))
-  (set-file-types hresult (file-types :uint) (filter-spec :pointer))
-  (set-file-type-index hresult (file-type :uint))
-  (get-file-type-index hresult (file-type :pointer))
-  (advise hresult (events :pointer) (cookie :pointer))
-  (unadvise hresult (cookie dword))
-  (set-options hresult (options fileopendialogoptions))
-  (get-options hresult (options :pointer))
-  (set-default-folder hresult (shell-item :pointer))
-  (set-folder hresult (shell-item :pointer))
-  (get-folder hresult (shell-item :pointer))
-  (get-current-selection hresult (shell-item :pointer))
-  (set-file-name hresult (name :pointer))
-  (get-file-name hresult (name :pointer))
-  (set-title hresult (title :pointer))
-  (set-ok-button-label hresult (text :pointer))
-  (set-file-name-label hresult (label :pointer))
-  (get-result hresult (shell-item :pointer))
-  (add-place hresult (shell-item :pointer) (fdap fdap))
-  (set-default-extension hresult (extension :pointer))
-  (close hresult (result hresult))
-  (set-client-guid hresult (guid :pointer))
-  (clear-client-data hresult)
-  (set-filter hresult (filter :pointer)))
-
-(define-comstruct file-open-dialog
-  (show hresult (owner :pointer))
-  (set-file-types hresult (file-types :uint) (filter-spec :pointer))
-  (set-file-type-index hresult (file-type :uint))
-  (get-file-type-index hresult (file-type :pointer))
-  (advise hresult (events :pointer) (cookie :pointer))
-  (unadvise hresult (cookie dword))
-  (set-options hresult (options fileopendialogoptions))
-  (get-options hresult (options :pointer))
-  (set-default-folder hresult (shell-item :pointer))
-  (set-folder hresult (shell-item :pointer))
-  (get-folder hresult (shell-item :pointer))
-  (get-current-selection hresult (shell-item :pointer))
-  (set-file-name hresult (name :pointer))
-  (get-file-name hresult (name :pointer))
-  (set-title hresult (title :pointer))
-  (set-ok-button-label hresult (text :pointer))
-  (set-file-name-label hresult (label :pointer))
-  (get-result hresult (shell-item :pointer))
-  (add-place hresult (shell-item :pointer) (fdap fdap))
-  (set-default-extension hresult (extension :pointer))
-  (close hresult (result hresult))
-  (set-client-guid hresult (guid :pointer))
-  (clear-client-data hresult)
-  (set-filter hresult (filter :pointer))
-  (get-results hresult (shell-item-array :pointer))
-  (get-selected-items hresult (shell-item-array :pointer)))
-
-(define-comstruct shell-item
-  (bind-to-handler hresult (ctx :pointer) (bhid :pointer) (riid :pointer) (ppv :pointer))
-  (get-parent hresult (parent :pointer))
-  (get-display-name hresult (type sigdn) (name :pointer))
-  (get-attributes hresult (mask sfgaof) (attributes :pointer))
-  (compare hresult (shell-item :pointer) (hint sichintf) (pi-order :pointer)))
-
-(define-comstruct shell-item-array
-  (bind-to-handler hresult (ctx :pointer) (bhid :pointer) (riid :pointer) (ppv :pointer))
-  (get-property-store hresult (flags getpropertystoreflags) (riid :pointer) (ppv :pointer))
-  (get-property-description-list hresult (key-type :pointer) (riid :pointer) (ppv :pointer))
-  (get-attributes hresult (attrib-flags siattribflags) (mask sfgaof) (attribs :pointer))
-  (get-count hresult (num-items :pointer))
-  (get-item-at hresult (index dword) (shell-item :pointer))
-  (enum-items hresult (enumerator :pointer)))
+(com:define-comstruct shell-item-array
+  (bind-to-handler (ctx :pointer) (bhid :pointer) (riid :pointer) (ppv :pointer))
+  (get-property-store (flags getpropertystoreflags) (riid :pointer) (ppv :pointer))
+  (get-property-description-list (key-type :pointer) (riid :pointer) (ppv :pointer))
+  (get-attributes (attrib-flags siattribflags) (mask sfgaof) (attribs :pointer))
+  (get-count (num-items :pointer))
+  (get-item-at (index dword) (shell-item :pointer))
+  (enum-items (enumerator :pointer)))
 
 (defun shell-item-path (item)
   (cffi:with-foreign-object (pointer :pointer)
     (shell-item-get-display-name item :filesys-path pointer)
-    (parse-native-namestring (wstring->string (cffi:mem-ref pointer :pointer)))))
+    (parse-native-namestring (com:wstring->string (cffi:mem-ref pointer :pointer)))))
 
 (defmacro with-deref ((var type) &body init)
   `(cffi:with-foreign-object (,var ,type)
@@ -377,15 +217,15 @@
   `(let ((,var (with-deref (,var :pointer) ,init)))
      (unwind-protect
           (progn ,@body)
-       (com-release ,var))))
+       (com:release ,var))))
 
 (defun open* (clsid iid title default filter multiple)
   (let ((strings ()) defitem)
     (flet ((wstring (string)
-             (car (push (string->wstring string) strings))))
+             (car (push (com:string->wstring string) strings))))
       (unwind-protect* (mapc #'cffi:foreign-free strings)
-        (with-com-object dialog (co-create-instance clsid (cffi:null-pointer) CLSCTX-ALL iid dialog)
-          (let ((options (with-deref (options 'dword) (file-dialog-get-options dialog options))))
+        (com:with-com (dialog (com:create clsid iid))
+          (let ((options (com:with-deref (options 'dword) (file-dialog-get-options dialog options))))
             (check-return
                 (file-dialog-set-options dialog (logior options
                                                         (cffi:foreign-enum-value 'fileopendialogoptions :force-file-system)
@@ -413,16 +253,16 @@
           (when default
             (let ((filename (file-namestring default))
                   (directory (native-namestring (make-pathname :name NIL :type NIL :defaults default))))
-              (setf defitem (with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
+              (setf defitem (com:with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
               (check-return (file-dialog-set-folder dialog defitem))
               (check-return (file-dialog-set-file-name dialog (wstring filename)))))
-          (unwind-protect* (when defitem (com-release defitem))
+          (unwind-protect* (when defitem (com:release defitem))
             (case (check-return (file-dialog-show dialog (cffi:null-pointer)) :ok :cancelled)
               (:ok
                (values
                 (cond (multiple
                        (with-com-object result (file-open-dialog-get-results dialog result)
-                         (loop for i from 0 below (with-deref (num 'dword) (shell-item-array-get-count result num))
+                         (loop for i from 0 below (com:with-deref (num 'dword) (shell-item-array-get-count result num))
                                collect (with-com-object item (shell-item-array-get-item-at result i item)
                                          (shell-item-path item)))))
                       (T

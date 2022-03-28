@@ -29,6 +29,7 @@
 
 (defpackage #:org.shirakumo.file-select.win32
   (:use #:cl #:org.shirakumo.file-select)
+  #+windows (:local-nicknames (#:com #:org.shirakumo.com-on))
   (:export #:win32))
 
 (defpackage #:org.shirakumo.file-select.zenity

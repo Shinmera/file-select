@@ -14,6 +14,7 @@
   :bug-tracker "https://github.com/shinmera/file-select/issues"
   :source-control (:git "https://github.com/shinmera/file-select.git")
   :serial T
+  :defsystem-depends-on (:trivial-features)
   :components ((:file "package")
                (:file "protocol")
                (:file "gtk" :if-feature :linux)
@@ -24,6 +25,6 @@
                (:file "documentation"))
   :depends-on (:cffi
                :float-features
-               :trivial-features
                (:feature :darwin :trivial-main-thread)
+               (:feature :windows :com-on)
                :documentation-utils))
