@@ -28,12 +28,12 @@
                            (when save "--save")
                            (when multiple "--multiple")
                            (when (eq filter :directory) "--directory")
-                           (when default (format NIL "--filename=~a" (file-namestring default)))
-                           (loop for (name type) in (etypecase filter
-                                                      ((eql :directory))
-                                                      (string `(("" ,filter)))
-                                                      (list filter))
-                                 collect (format NIL "--file-filter=~a | *.~a" name type))))))
+                           (when default (format NIL "--filename=~a" (uiop:native-namestring default)))
+                           (loop for (name . type) in (etypecase filter
+                                                        ((eql :directory))
+                                                        (string `(("" ,filter)))
+                                                        (list filter))
+                                 collect (format NIL "--file-filter=~a |~{ *.~a~}" name type))))))
         (cond ((null parts) (values NIL NIL))
               (multiple (values parts T))
               (T (values (first parts) T))))
