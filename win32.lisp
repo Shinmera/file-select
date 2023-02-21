@@ -130,7 +130,7 @@
 (cffi:defcfun (create-item-from-parsing-name "SHCreateItemFromParsingName") com:hresult
   (path :pointer)
   (ctx :pointer)
-  (riid :pointer)
+  (riid com:guid)
   (shell-item :pointer))
 
 (com:define-comstruct file-dialog
