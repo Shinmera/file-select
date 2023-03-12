@@ -7,20 +7,20 @@
 (in-package #:org.shirakumo.file-select.zenity)
 
 (defclass zenity (backend)
-  ())
+  ((program-name :initform "zenity" :initarg :program-name :accessor program-name)))
 
 (defmethod finalize ((backend zenity)))
 
-(defun zenity (&rest args)
-  (uiop:run-program (list* "zenity" (remove NIL args))
+(defun zenity (program &rest args)
+  (uiop:run-program (list* program (remove NIL args))
                     :output :string :external-format :utf-8))
 
 (defun zenity* (&key title default filter multiple save backend)
-  (declare (ignore backend))
   (handler-case
       (let ((parts (org.shirakumo.file-select::split
                     #\Linefeed
                     (apply #'zenity
+                           (program-name backend)
                            "--file-selection"
                            "--separator=
 "
@@ -41,7 +41,7 @@
       (values NIL NIL))))
 
 (defmethod new-with ((backend zenity) &rest args)
-  (apply #'zenity* :save T args))
+  (apply #'zenity* :backend backend :save T args))
 
 (defmethod existing-with ((backend zenity) &rest args)
-  (apply #'zenity* args))
+  (apply #'zenity* :backend backend args))
