@@ -40,4 +40,4 @@
          (cffi:close-foreign-library 'org.shirakumo.file-select.gtk:gtk)
          'org.shirakumo.file-select.gtk:gtk)
         (T
-         (warn 'no-backend-found))))
+         (error 'no-backend-found))))
