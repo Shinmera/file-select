@@ -36,6 +36,8 @@
          'org.shirakumo.file-select.macos:macos)
         ((find-in-path "zenity")
          'org.shirakumo.file-select.zenity:zenity)
+        ((find-in-path "kdialog")
+         'org.shirakumo.file-select.kdialog:kdialog)
         ((ignore-errors (cffi:load-foreign-library 'org.shirakumo.file-select.gtk:gtk))
          (cffi:close-foreign-library 'org.shirakumo.file-select.gtk:gtk)
          'org.shirakumo.file-select.gtk:gtk)
