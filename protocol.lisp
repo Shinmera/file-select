@@ -18,10 +18,16 @@
       (setf *default-backend* (determine-default-backend))))
 
 (defun existing (&rest args &key title default filter multiple backend)
-  (apply #'existing-with (or backend (default-backend)) args))
+  (restart-case (apply #'existing-with (or backend (default-backend)) args)
+    (continue ()
+      :report "Cancel the call by returning NIL"
+      (values NIL NIL))))
 
 (defun new (&rest args &key title default filter multiple backend)
-  (apply #'new-with (or backend (default-backend)) args))
+  (restart-case (apply #'new-with (or backend (default-backend)) args)
+    (continue ()
+      :report "Cancel the call by returning NIL"
+      (values NIL NIL))))
 
 (defclass backend () ())
 
