@@ -1,7 +1,7 @@
 #|
 This file is backend for the file-select package, adapted from zenity.lisp
 (c) 2019 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
-Original Author: Nicolas Hafner <shinmera@tymoon.eu>
+Original Author: Yukari Hafner <shinmera@tymoon.eu>
 File Author: Andrew Valentine
 |#
 

@@ -1,14 +1,8 @@
-#|
- This file is a part of file-select
- (c) 2019 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (asdf:defsystem file-select
   :version "1.0.0"
   :license "zlib"
-  :author "Nicolas Hafner <shinmera@tymoon.eu>"
-  :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
+  :author "Yukari Hafner <shinmera@tymoon.eu>"
+  :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "A library to invoke the native file selection dialogs to open or save files."
   :homepage "https://shinmera.github.io/file-select/"
   :bug-tracker "https://github.com/shinmera/file-select/issues"
