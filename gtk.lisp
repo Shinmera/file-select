@@ -61,9 +61,9 @@
     (set-select-multiple dialog multiple)
     (cond ((null default))
           ((or (pathname-name default) (pathname-type default))
-           (set-filename dialog default))
+           (set-filename dialog (native-namestring default)))
           (T
-           (set-current-folder dialog default)))
+           (set-current-folder dialog (native-namestring default))))
     (etypecase filter
       (string
        (let ((f (new-filter)))
