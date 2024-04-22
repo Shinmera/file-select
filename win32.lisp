@@ -245,11 +245,12 @@
                        (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring (format NIL "*.~a" type))))
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
-            (let ((filename (file-namestring default))
-                  (directory (native-namestring (make-pathname :name NIL :type NIL :defaults default))))
-              (setf defitem (com:with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
-              (check-return (file-dialog-set-folder dialog defitem))
-              (check-return (file-dialog-set-file-name dialog (wstring filename)))))
+            (ignore-errors
+             (let ((filename (file-namestring default))
+                   (directory (native-namestring (make-pathname :name NIL :type NIL :defaults default))))
+               (setf defitem (com:with-deref (defitem :pointer) (create-item-from-parsing-name (wstring directory) (cffi:null-pointer) IID-ISHELL-ITEM defitem)))
+               (check-return (file-dialog-set-folder dialog defitem))
+               (check-return (file-dialog-set-file-name dialog (wstring filename))))))
           (unwind-protect* (when defitem (com:release defitem))
             (case (check-return (file-dialog-show dialog (cffi:null-pointer)) :ok :cancelled)
               (:ok
