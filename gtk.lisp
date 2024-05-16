@@ -84,8 +84,9 @@
                  (let* ((files (get-files dialog))
                         (head files))
                    (unwind-protect
-                        (loop until (cffi:null-pointer-p head)
-                              for file = (g-slist-data head)
+                        (loop with file
+                              until (cffi:null-pointer-p head)
+                              do (setf file (g-slist-data head))
                               collect (parse-native-namestring (g-get-path file))
                               do (g-unref file)
                                  (setf head (g-slist-next head)))
