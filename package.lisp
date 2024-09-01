@@ -38,3 +38,7 @@
 (defpackage #:org.shirakumo.file-select.kdialog
   (:use #:cl #:org.shirakumo.file-select)
   (:export #:kdialog))
+
+(defpackage #:org.shirakumo.file-select.yad
+  (:use #:cl #:org.shirakumo.file-select)
+  (:export #:yad))
