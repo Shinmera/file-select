@@ -17,4 +17,6 @@ The following file selection backends are currently supported:
 - ``gtk``
 - ``macos`` (AppKit/Cocoa)
 - ``win32`` (IFileDialog)
-- ``zenity``
+- ``zenity``/``matedialog``,``qarma``
+- ``kdialog``
+- ``yad``
