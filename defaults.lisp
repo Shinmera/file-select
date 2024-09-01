@@ -34,6 +34,8 @@
          (make-instance 'org.shirakumo.file-select.zenity:zenity :program-name "matedialog"))
         ((find-in-path "qarma")
          (make-instance 'org.shirakumo.file-select.zenity:zenity :program-name "qarma"))
+        ((find-in-path "yad")
+         (make-instance 'org.shirakumo.file-select.zenity:zenity :program-name "yad"))
         ((find-in-path "kdialog")
          'org.shirakumo.file-select.kdialog:kdialog)
         ((ignore-errors (cffi:load-foreign-library 'org.shirakumo.file-select.gtk:gtk))
