@@ -35,7 +35,7 @@
         ((find-in-path "qarma")
          (make-instance 'org.shirakumo.file-select.zenity:zenity :program-name "qarma"))
         ((find-in-path "yad")
-         (make-instance 'org.shirakumo.file-select.zenity:zenity :program-name "yad"))
+         'org.shirakumo.file-select.yad:yad)
         ((find-in-path "zenity")
          'org.shirakumo.file-select.zenity:zenity)
         ((ignore-errors (cffi:load-foreign-library 'org.shirakumo.file-select.gtk:gtk))

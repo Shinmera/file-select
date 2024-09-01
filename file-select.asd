@@ -13,6 +13,7 @@
                (:file "protocol")
                (:file "gtk" :if-feature :linux)
                (:file "zenity" :if-feature :linux)
+               (:file "yad" :if-feature :linux)
                (:file "kdialog" :if-feature :linux)
                (:file "macos" :if-feature :darwin)
                (:file "win32" :if-feature :windows)
