@@ -18,8 +18,6 @@
     (cffi:use-foreign-library cocoa)
     (cffi:use-foreign-library appkit)))
 
-(defmethod finalize ((backend macos)))
-
 (defmethod new-with ((backend macos) &rest args)
   (apply #'open* "NSSavePanel" "savePanel" args))
 

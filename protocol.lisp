@@ -53,6 +53,8 @@
 (defmethod existing-with ((backend class) &rest args &key (title "Select File"))
   (apply #'existing-with (get-backend backend) :title title args))
 
+(defmethod finalize ((backend backend)))
+
 (defmethod finalize :after ((backend backend))
   (remhash (class-of backend) *backend-cache*))
 
@@ -69,3 +71,15 @@
   #+sbcl (sb-ext:parse-native-namestring path)
   #+ccl (ccl:native-to-pathname path)
   #-(or sbcl ccl) (parse-namestring path))
+
+(defun run (program &rest args)
+  (handler-case
+      (multiple-value-bind (output error status)
+          (uiop:run-program (list* program (remove NIL args))
+                            :output :string
+                            :ignore-error-status T
+                            :external-format :utf-8)
+        (declare (ignore error))
+        (values status output))
+    (error ()
+      (error 'file-select-error))))
