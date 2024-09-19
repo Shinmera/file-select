@@ -80,6 +80,6 @@
                             :ignore-error-status T
                             :external-format :utf-8)
         (declare (ignore error))
-        (values status output))
+        (values output status))
     (error ()
       (error 'file-select-error))))
