@@ -22,7 +22,9 @@
 			         (etypecase filter
 			           ((eql :directory))
 			           (string (format nil "~a (*.~a)" filter filter))
-			           (list (format nil "~{~{~a (*.~a)~}~^|~}" filter)))
+			           (list (format nil "~{~a (~{*.~a~^ ~})~^|~}"
+                                     (loop for (name . types) in filter
+                                           collect name collect types))))
 			         NIL))))
         (cond ((null parts) (values NIL NIL))
               (multiple (values parts T))
