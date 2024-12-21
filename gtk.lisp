@@ -1,15 +1,19 @@
 (in-package #:org.shirakumo.file-select.gtk)
 
 (cffi:define-foreign-library gtk
-  (T (:default "libgtk-3")))
+  (:linux (:or "libgtk-3.so.0" "libgtk-3.so" "libgtk-4.so.0" "libgtk-4.so"))
+  (T (:or (:default "libgtk-3") (:default "libgtk-4"))))
 
 (cffi:define-foreign-library glib
+  (:linux (:or "libglib-2.0.so.0" "libglib-2.0.so"))
   (T (:default "libglib-2.0")))
 
 (cffi:define-foreign-library gio
+  (:linux (:or "libgio-2.0.so.0" "libgio-2.0.so"))
   (T (:default "libgio-2.0")))
 
 (cffi:define-foreign-library gmodule
+  (:linux (:or "libgmodule-2.0.so.0" "libgmodule-2.0.so"))
   (T (:default "libgmodule-2.0")))
 
 (defclass gtk (backend)
