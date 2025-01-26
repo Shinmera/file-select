@@ -16,7 +16,7 @@
                      (when save "--save")
                      (when multiple "--multiple")
                      (when (eq filter :directory) "--directory")
-                     (when default (format NIL "--filename=~a" (uiop:native-namestring default)))
+                     (when default (format NIL "--filename=~a" (pathname-utils:native-namestring default)))
                      (loop for (name . type) in (etypecase filter
                                                   ((eql :directory))
                                                   (string `(("" ,filter)))
