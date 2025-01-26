@@ -11,7 +11,7 @@
   :defsystem-depends-on (:trivial-features)
   :components ((:file "package")
                (:file "protocol")
-               (:file "gtk" :if-feature :linux)
+               ;(:file "gtk" :if-feature :linux)
                (:file "zenity" :if-feature :linux)
                (:file "yad" :if-feature :linux)
                (:file "kdialog" :if-feature :linux)
