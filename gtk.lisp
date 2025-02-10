@@ -16,6 +16,11 @@
   (:linux (:or "libgmodule-2.0.so.0" "libgmodule-2.0.so"))
   (T (:default "libgmodule-2.0")))
 
+(set 'cl-user::*foreign-system-libraries*
+     (union (when (boundp 'cl-user::*foreign-system-libraries*)
+              (symbol-value 'cl-user::*foreign-system-libraries*))
+            '(gtk glib gio gmodule)))
+
 (defclass gtk (backend)
   ((closure :accessor closure)))
 
