@@ -10,7 +10,7 @@
     (flet ((maybe-commit ()
              (let ((string (get-output-stream-string buffer)))
                (when (string/= string "")
-                 (push (parse-native-namestring string) paths)))))
+                 (push (parse-native-namestring string :as :directory) paths)))))
       (loop for c across string
             do (if (char= c char)
                    (maybe-commit)
@@ -19,7 +19,7 @@
     (nreverse paths)))
 
 (defun find-in-path (file)
-  (dolist (path (split #\: (uiop:getenv "PATH")))
+  (dolist (path (split #\: (pathname-utils::getenv "PATH")))
     (when (probe-file (merge-pathnames file path))
       (return (merge-pathnames file path)))))
 

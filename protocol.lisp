@@ -61,16 +61,11 @@
 (defmethod finalize ((all (eql T)))
   (mapc #'finalize (loop for v being the hash-values of *backend-cache* collect v)))
 
-(defun native-namestring (path)
-  #+sbcl (sb-ext:native-namestring path)
-  #+ccl (ccl:native-translated-namestring path)
-  #+cmucl (ext:unix-namestring path NIL)
-  #-(or sbcl ccl cmucl) (namestring path))
+(defun native-namestring (path &rest args)
+  (apply #'pathname-utils:native-namestring path args))
 
-(defun parse-native-namestring (path)
-  #+sbcl (sb-ext:parse-native-namestring path)
-  #+ccl (ccl:native-to-pathname path)
-  #-(or sbcl ccl) (parse-namestring path))
+(defun parse-native-namestring (path &rest args)
+  (apply #'pathname-utils:parse-native-namestring path args))
 
 (defun run (program &rest args)
   (handler-case
