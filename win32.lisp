@@ -240,9 +240,9 @@
             (let ((structure (cffi:foreign-alloc :pointer :count (* 2 (length filter)))))
               (push structure strings)
               (loop for i from 0 by 2
-                    for (name type) in filter
+                    for (name . types) in filter
                     do (setf (cffi:mem-aref structure :pointer (+ 0 i)) (wstring name))
-                       (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring (format NIL "*.~a" type))))
+                       (setf (cffi:mem-aref structure :pointer (+ 1 i)) (wstring (format NIL "~{*.~a~^;~}" types))))
               (file-dialog-set-file-types dialog (length filter) structure)))
           (when default
             (ignore-errors
