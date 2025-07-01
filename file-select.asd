@@ -23,5 +23,6 @@
                :float-features
                (:feature :darwin :trivial-main-thread)
                (:feature :windows :com-on)
+               :uiop
                :pathname-utils
                :documentation-utils))
